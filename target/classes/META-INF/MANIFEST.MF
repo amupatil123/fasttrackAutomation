@@ -1,5 +1,9 @@
 Manifest-Version: 1.0
+<<<<<<< HEAD
 Built-By: pblak
+=======
+Built-By: Admin
+>>>>>>> a3652a62e04c37b7690d6aaf22a2108393286478
 Build-Jdk: 17.0.4.1
 Created-By: Maven Integration for Eclipse
 
