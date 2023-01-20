@@ -1,4 +1,5 @@
-package Keywords;
+package KeyWords;
+
 import static org.testng.Assert.assertEquals;
 
 import java.awt.AWTException;
@@ -9,110 +10,35 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.io.FileUtils;
+import org.bouncycastle.asn1.smime.SMIMEEncryptionKeyPreferenceAttribute;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.ie.InternetExplorerDriver;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
 import ru.yandex.qatools.ashot.AShot;
 import ru.yandex.qatools.ashot.Screenshot;
 import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
 
-public class UIKeywords {
-	public static RemoteWebDriver driver;
-
-	public static void openBrowser(String browserName) {
-		if (browserName.equalsIgnoreCase("chrome")) {
-			WebDriverManager.chromedriver().setup();
-			driver = new ChromeDriver();
-			driver.manage().window().maximize();
-			System.out.println(browserName + "browser is launched successfully");
-		} else if (browserName.equalsIgnoreCase("Edge")) {
-			WebDriverManager.edgedriver().setup();
-			driver = new EdgeDriver();
-			driver.manage().window().maximize();
-			System.out.println(browserName + "browser is launched successfully");
-		} else if (browserName.equalsIgnoreCase("IE")) {
-			WebDriverManager.iedriver().setup();
-			driver = new InternetExplorerDriver();
-			driver.manage().window().maximize();
-			System.out.println(browserName + "browser is launched successfully");
-		} else {
-			WebDriverManager.chromedriver().setup();
-			driver = new ChromeDriver();
-			driver.manage().window().maximize();
-			System.out.println(browserName + " default browser is launched successfully");
-
-		}
-	}
-
-	public static void launchurl(String url) {
-		driver.get(url);
-		System.out.println("url is launched" + url);
-	}
-
-	public static void getTitle() {
-		String title = driver.getTitle();
-		System.out.println(title);
-	}
-
-	public static void closebrowser() {
-		driver.close();
-		System.out.println("browser is close successfully");
-	}
-
-	public static void switchToWindow(String byTitle) {
-		String parentWindow = driver.getWindowHandle();
-		Set<String> Windows = driver.getWindowHandles();
-		// String title=driver.getTitle();
-		for (String window : Windows) {
-			if (driver.switchTo().window(window).getTitle().equals(byTitle)) {
-
-				System.out.println("swiched on window:-" + byTitle);
-				break;
-			}
-		}
-
-	}
-
-	public static void clickMe(By element) {
+public class UIKeyWords extends BrowserUtil {
+	
+	public static void ClickMe(By element) {
 		driver.findElement(element).click();
 	}
-
-	public static void enterText(By element, String text) {
-		driver.findElement(element).sendKeys(text);
+	public static void SendKeys(By element, String Text) {
+		driver.findElement(element).sendKeys(Text);
 	}
-
-	public static void keyboardkeyPress(int keyCode) {
-		Robot robo = null;
-		try {
-			robo = new Robot();
-		} catch (AWTException e) {
-			e.printStackTrace();
-		}
-		robo.keyPress(keyCode);
+	public static void Title() {
+		String Title=driver.getCurrentUrl();
+		System.out.println(Title);
 	}
-
-	public static List<String> getTexts(By element) {
-		List<WebElement> elements = driver.findElements(element);
-		List<String> texts = new ArrayList<String>();
-		for (WebElement elmnt : elements) {
-			texts.add(elmnt.getText());
-		}
-		return texts;
-	}
-
-	public static void takeScreenShotsUsingAshot(String testcaseName) throws InterruptedException, IOException {
+	public static void AshottakeScreenshots(String testCaseName) throws IOException {
+		
 		DateTimeFormatter dtf=DateTimeFormatter.ofPattern("DDmmYYHHmmss");
 		LocalDateTime now=LocalDateTime.now();
 		String date=dtf.format(now);
@@ -122,25 +48,47 @@ public class UIKeywords {
 		ashot.shootingStrategy(ShootingStrategies.viewportPasting(2000));
 		Screenshot srcshot=ashot.takeScreenshot(driver);
 		BufferedImage img=srcshot.getImage();
-		ImageIO.write(img, "png",new File(baseDir+"\\Screenshots\\"+testcaseName+"___"+".png"));
+		ImageIO.write(img, "png",new File(baseDir+"\\Screenshots\\"+testCaseName+"___"+".png"));
 	}
-
-	public static void mouseMove(By element) {
-		Actions act = new Actions(driver);
-		act.moveToElement(driver.findElement(element)).build().perform();
+	public static void SeleniumtakeScreenshots(String testCaseName) throws IOException, InterruptedException {			
+		
+		DateTimeFormatter dtf=DateTimeFormatter.ofPattern("DDMMYYhhmmss");
+		LocalDateTime now=LocalDateTime.now();
+		String date=dtf.format(now);
+		File screenshotFile=((TakesScreenshot)driver).getScreenshotAs(OutputType.FILE);
+		String baseDir=System.getenv("user.dir");
+		FileUtils.copyFile(screenshotFile, new File(baseDir+"\\Screenshots\\"+testCaseName+"_"+date+"__"+".png"));	
+		Thread.sleep(2000);
 	}
-	public static void assertequal(String addtitle) {
-		String title=driver.getTitle();
-		assertEquals(title, addtitle);
+	public static void asserEqual(String EnterAcualTitle) {
+		String Title=driver.getTitle();
+		System.out.println(Title);
+		assertEquals(EnterAcualTitle, Title);
 	}
 	public static void PageDown(int NumberOfDown) throws AWTException, InterruptedException {
 		Robot robo=new Robot();
 		for(int i=0;i<=NumberOfDown;i++) {
-			Thread.sleep(700);
+			Thread.sleep(200);
 		robo.keyPress(KeyEvent.VK_DOWN);
 		robo.keyRelease(KeyEvent.VK_DOWN);
 	}
-		
 	}
-
+	public static void ParentWindHandle() {
+		
+		Set<String>allhandle=driver.getWindowHandles();
+		
+		Iterator<String>iterator=allhandle.iterator();
+		String Parenthandle=iterator.next();
+		String ChildHandle=iterator.next();		
+		driver.switchTo().window(Parenthandle);
+	}
+	public static void ChildWindHandle() {
+		
+		Set<String>allhandle=driver.getWindowHandles();
+		
+		Iterator<String>iterator=allhandle.iterator();
+		String Parenthandle=iterator.next();
+		String ChildHandle=iterator.next();		
+		driver.switchTo().window(ChildHandle);
+	}
 }
